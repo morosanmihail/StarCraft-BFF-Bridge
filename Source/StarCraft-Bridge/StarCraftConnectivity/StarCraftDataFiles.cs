@@ -18,7 +18,8 @@ namespace StarCraft_Bridge.StarCraftConnectivity
             BWAPIINI.Write("enemy_race", EnemyRace, "auto_menu");
         }
 
-        public static void CreateMapFromData(int Instance, string SCLocation, string MapName, string EnemyRace)
+        //TODO
+        public static void CreateMapFromData(int Instance, string SCLocation, string MapName, string EnemyRace, dynamic data)
         {
             Directory.CreateDirectory("Temp");
             System.IO.StreamWriter file = new System.IO.StreamWriter("Temp\\Instance" + Instance + ".txt");
@@ -54,7 +55,7 @@ namespace StarCraft_Bridge.StarCraftConnectivity
             {
                 exeProcess.WaitForExit();
             }
-        }
+        } 
 
         public static void ClearPreviousRun(string SCLocation)
         {

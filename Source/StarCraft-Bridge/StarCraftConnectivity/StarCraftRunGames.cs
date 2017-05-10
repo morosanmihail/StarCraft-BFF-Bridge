@@ -58,14 +58,15 @@ namespace StarCraft_Bridge.StarCraftConnectivity
                                 var Procs2 = Process.GetProcessesByName("StarCraft");
                                 foreach (var process in Procs2)
                                 {
-                                    if (process.MainModule.FileName.Equals(SCLocation + "StarCraft.exe"))
+                                    if (GetExecutablePathAboveVista(process.Id).Equals(NormalizePath(SCLocation + "StarCraft.exe")))
+                                    //if (process.MainModule.FileName.Equals(SCLocation + "StarCraft.exe"))
                                     {
                                         ShowWindow(process.MainWindowHandle, 2);
                                         Minimised = true;
                                     }
                                 }
                             }
-                            catch
+                            catch(Exception e)
                             {
 
                             }
@@ -75,7 +76,8 @@ namespace StarCraft_Bridge.StarCraftConnectivity
                     var Procs = Process.GetProcessesByName("StarCraft");
                     foreach (var process in Procs)
                     {
-                        if (process.MainModule.FileName.Equals(SCLocation + "StarCraft.exe"))
+                        if(GetExecutablePathAboveVista(process.Id).Equals(NormalizePath(SCLocation + "StarCraft.exe")))
+                        //if (process.MainModule.FileName.Equals(SCLocation + "StarCraft.exe"))
                         {
                             process.Kill();
                         }
@@ -148,6 +150,54 @@ namespace StarCraft_Bridge.StarCraftConnectivity
             return Results;
         }
 
+        private static string GetExecutablePathAboveVista(int dwProcessId)
+        {
+            StringBuilder buffer = new StringBuilder(1024);
+            IntPtr hprocess = OpenProcess(ProcessAccessFlags.QueryInformation, false, dwProcessId);
+            if (hprocess != IntPtr.Zero)
+            {
+                try
+                {
+                    int size = buffer.Capacity;
+                    if (QueryFullProcessImageName(hprocess, 0, buffer, out size))
+                    {
+                        return NormalizePath(buffer.ToString());
+                    }
+                }
+                finally
+                {
+                    CloseHandle(hprocess);
+                }
+            }
+            return string.Empty;
+        }
+
+        [Flags]
+        enum ProcessAccessFlags : uint
+        {
+            All = 0x001F0FFF,
+            Terminate = 0x00000001,
+            CreateThread = 0x00000002,
+            VMOperation = 0x00000008,
+            VMRead = 0x00000010,
+            VMWrite = 0x00000020,
+            DupHandle = 0x00000040,
+            SetInformation = 0x00000200,
+            QueryInformation = 0x00000400,
+            Synchronize = 0x00100000,
+            ReadControl = 0x00020000
+        }
+
+        [DllImport("kernel32.dll")]
+        private static extern bool QueryFullProcessImageName(IntPtr hprocess, int dwFlags,
+               StringBuilder lpExeName, out int size);
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess,
+                       bool bInheritHandle, int dwProcessId);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool CloseHandle(IntPtr hHandle);
+
         [DllImport("user32.dll")]
         static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
@@ -155,6 +205,13 @@ namespace StarCraft_Bridge.StarCraftConnectivity
         {
             bool res = File.Exists(SCLocation + "LOCKFILE");
             return res;
+        }
+
+        public static string NormalizePath(string path)
+        {
+            return Path.GetFullPath(new Uri(path).LocalPath)
+                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       .ToUpperInvariant();
         }
     }
 }

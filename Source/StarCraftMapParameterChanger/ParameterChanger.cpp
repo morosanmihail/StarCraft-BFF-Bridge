@@ -496,17 +496,28 @@ int main(int argc, char* argv[])
 	int ImportantCount = 0;
 	Input >> ImportantCount;
 
-	vector<int> ImportantUnits;
-	vector<int> ImportantWeapons;
+	vector<char> UnitOrWeapon;
+	vector<char> Attribute;
+	vector<int> ID;
+	vector<int> Values;
 
-	int nr;
+	//vector<int> ImportantUnits;
+	//vector<int> ImportantWeapons;
+
+	char uow, attr;
+	int id, val;
 	for (int i = 0; i < ImportantCount; i++)
 	{
-		Input >> nr;
-		ImportantUnits.push_back(nr);
+		Input >> uow >> attr >> id >> val;
+		UnitOrWeapon.push_back(uow);
+		Attribute.push_back(attr);
+		ID.push_back(id);
+		Values.push_back(val);
 	}
 
-	for (int i = 0; i < ImportantCount; i++)
+	Input.close();
+
+	/*for (int i = 0; i < ImportantCount; i++)
 	{
 		Input >> nr;
 		ImportantWeapons.push_back(nr);
@@ -516,14 +527,40 @@ int main(int argc, char* argv[])
 	while (Input >> nr)
 	{
 		values.push_back(nr);
-	}
+	}*/
 
 
 	cout << "Read new values" << endl;
 
 	for (int i = 0; i < ImportantCount; i++)
 	{
-		units[ImportantUnits[i]].UseDef = false;
+		if (UnitOrWeapon[i] == 'u')
+		{
+			units[ID[i]].UseDef = false;
+
+			if (Attribute[i] == 'h')
+			{
+				units[ID[i]].HP = Values[i];
+			}
+			if (Attribute[i] == 'a')
+			{
+				units[ID[i]].Armor = Values[i];
+			}
+			if (Attribute[i] == 'b')
+			{
+				units[ID[i]].BuildTime = Values[i];
+			}
+			if (Attribute[i] == 'm')
+			{
+				units[ID[i]].MineralCost = Values[i];
+			}
+		}
+
+		if (UnitOrWeapon[i] == 'w')
+		{
+			weapons[ID[i]].Damage = Values[i];
+		}
+		/*units[ImportantUnits[i]].UseDef = false;
 
 
 		cout << weapons[ImportantWeapons[i]].Name << " Attack: " << (int)weapons[ImportantWeapons[i]].Damage << " to " << values[i] << endl;
@@ -532,7 +569,7 @@ int main(int argc, char* argv[])
 
 		units[ImportantUnits[i]].HP = values[ImportantCount + i];
 
-		weapons[ImportantWeapons[i]].Damage = values[i];
+		weapons[ImportantWeapons[i]].Damage = values[i]; */
 	}
 
 	//Rewrite it now

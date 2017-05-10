@@ -50,13 +50,14 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StarCraftConnectivity\StarCraftDataFiles.cs" />
+    <Compile Include="StarCraftConnectivity\StarCraftRunGames.cs" />
+    <Compile Include="Util\IniFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="StarCraftConnectivity\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

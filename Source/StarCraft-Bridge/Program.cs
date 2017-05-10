@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using StarCraft_Bridge.StarCraftConnectivity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace StarCraft_Bridge
     {
         public static string SCLocation = "E:\\Games\\Starcrafts\\1\\";
         public static string CLLocation = "E:\\Games\\ChaosLaunchers\\1\\";
-        public static int InstanceNumber = 0;
+        public static int InstanceNumber = 1;
         public static string HostName = "";
 
         public static void LoadParameters(string[] args)
@@ -85,10 +86,10 @@ namespace StarCraft_Bridge
                             /*
                                 CreateMapFromData(result);
                                 ReplaceBWAPIINI(result);
-                                ClearPreviousRun();
-                                RunGame();
-                                response = GetRunResults();
-                                */
+                                ClearPreviousRun();*/
+                                StarCraftRunGames.RunGame(SCLocation, CLLocation);
+                                //response = GetRunResults();
+                                
 
                             foreach (var Param in JResults["parameters"])
                             {
