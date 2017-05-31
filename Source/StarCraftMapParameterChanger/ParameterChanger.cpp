@@ -297,6 +297,10 @@ struct WeaponData
 
 int main(int argc, char* argv[])
 {
+	std::cout << "Have " << argc << " arguments:" << std::endl;
+	for (int i = 0; i < argc; ++i) {
+		std::cout << argv[i] << std::endl;
+	}
 	cout << "Starting map generation" << endl;
 	UnitData* units = new UnitData[230]();
 	WeaponData* weapons = new WeaponData[131];
@@ -310,9 +314,15 @@ int main(int argc, char* argv[])
 	std::wstring InputMap(arg1);// = L"../maps/GPMaps/(2)Astral Balance OG.scx";
 
 								//mbstowcs(arg1, argv[3], 512);
+
+	cout << "Reading from " << arg1 << endl;
+
 	mbstowcs_s(&convertedChars, arg1, strlen(argv[3]) + 1, argv[3], _TRUNCATE);
 
 	std::wstring OutputMap(arg1);
+
+
+	cout << "Writing to " << arg1 << endl;
 
 	mbstowcs_s(&convertedChars, arg1, strlen(argv[1]) + 1, argv[1], _TRUNCATE);
 
@@ -534,31 +544,38 @@ int main(int argc, char* argv[])
 
 	for (int i = 0; i < ImportantCount; i++)
 	{
+		cout << UnitOrWeapon[i] << " " << Attribute[i] << " " << Values[i] << endl;
 		if (UnitOrWeapon[i] == 'u')
 		{
 			units[ID[i]].UseDef = false;
 
 			if (Attribute[i] == 'h')
 			{
-				units[ID[i]].HP = Values[i];
+				units[ID[i]].HP += Values[i];
+				units[ID[i]].HP = max(units[ID[i]].HP, 0);
 			}
 			if (Attribute[i] == 'a')
 			{
-				units[ID[i]].Armor = Values[i];
+				units[ID[i]].Armor += Values[i];
+				units[ID[i]].Armor = max(units[ID[i]].Armor, 0);
 			}
 			if (Attribute[i] == 'b')
 			{
-				units[ID[i]].BuildTime = Values[i];
+				units[ID[i]].BuildTime += Values[i];
+				units[ID[i]].BuildTime = max(units[ID[i]].BuildTime, 0);
 			}
 			if (Attribute[i] == 'm')
 			{
-				units[ID[i]].MineralCost = Values[i];
+				cout << "Mineral Cost before: " << units[ID[i]].MineralCost << " and after: " << units[ID[i]].MineralCost + Values[i] << endl;
+				units[ID[i]].MineralCost += Values[i];
+				units[ID[i]].MineralCost = max(units[ID[i]].MineralCost, 0);
 			}
 		}
 
 		if (UnitOrWeapon[i] == 'w')
 		{
-			weapons[ID[i]].Damage = Values[i];
+			weapons[ID[i]].Damage += Values[i];
+			weapons[ID[i]].Damage = max(weapons[ID[i]].Damage, 0);
 		}
 		/*units[ImportantUnits[i]].UseDef = false;
 
@@ -689,6 +706,7 @@ int main(int argc, char* argv[])
 
 	f2.close();
 
+	cout << "Writing to output file" << endl;
 
 	cout << InsertFile(OutputMap.c_str(), "staredit\\scenario.chk", ResultPath) << endl;
 

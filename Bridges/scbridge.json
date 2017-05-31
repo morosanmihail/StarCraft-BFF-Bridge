@@ -1,0 +1,193 @@
+{
+    "bridge": {
+        "executable": "file.exe \"%0\" \"%1\" \"%2\"",
+        "password": "",
+        "port": "5672",
+        "queuename": "rpc_queue_sc",
+        "server": "localhost",
+        "type": "remote",
+        "username": ""
+    },
+    "custom": {
+        "EnemyRace": "Terran",
+        "MapName": "maps/(2)Astral Balance.scx",
+        "NumberOfGames": "11"
+    },
+    "evaluators": [
+        {
+            "enabled": true,
+            "metric": "WinRate",
+            "name": "TargetWinRateEval",
+            "target": "0.5",
+            "type": "AverageEvaluator",
+            "weight": "400"
+        }
+    ],
+    "gaparams": {
+        "Par_CrossoverRatio": "0.40",
+        "Par_GenCountBeforeRefresh": 0,
+        "Par_IslandClusters": 1,
+        "Par_KeepEliteRatio": "0.20",
+        "Par_KeepRandRatio": 0.0,
+        "Par_MaxGenerations": 100000,
+        "Par_MaxPopMembers": "50",
+        "Par_MutateRatio": "0.40",
+        "Par_Seed": "100",
+        "Par_TournamentSize": "6",
+        "Par_MaxParallelThreads": "24",
+        "extra_MutationChance": 0.5,
+        "extra_Predictor_HiddenLayerCount": 18,
+        "extra_Predictor_KNN_ThresholdClass": 2.0,
+        "extra_Predictor_KNN_TrainingDataHigh": 25.0,
+        "extra_Predictor_KNN_TrainingDataLow": 25.0,
+        "extra_Predictor_KNN_TrainingDataTotal": 100.0,
+        "extra_Predictor_LowerThreshold": 100.0,
+        "extra_Predictor_MaxTrainingData": 100,
+        "extra_Predictor_MinTrainingData": 100,
+        "extra_Predictor_TrainingEpochs": 100,
+        "extra_Predictor_UpperThreshold": 100.0,
+        "extra_use_predictor": false,
+        "string_PredictorType": "KNNPredictor"
+    },
+    "metrics": [
+        {
+            "name": "WinRate",
+            "type": "Double"
+        }
+    ],
+    "name": "(Empty)",
+    "parameters": [
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.h.0",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "w.d.0",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.m.0",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.b.0",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.h.7",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.m.7",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.b.7",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "w.d.18",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "w.d.40",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.h.37",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.b.37",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        },
+        {
+            "custom": {},
+            "enabled": true,
+            "listsize": 1,
+            "minimise": "minimise",
+            "name": "u.m.37",
+            "rangeAccuracy": "1",
+            "rangeMax": "10",
+            "rangeMin": "-10",
+            "weight": "1"
+        }
+    ]
+}

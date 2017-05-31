@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace StarCraft_Bridge
@@ -22,6 +23,7 @@ namespace StarCraft_Bridge
         {
             if (args.Length > 0)
             {
+                Console.WriteLine(string.Join(" ", args));
                 HostName = args[0];
                 SCLocation = args[1];
                 CLLocation = args[2];
@@ -44,113 +46,121 @@ namespace StarCraft_Bridge
                 HostName = HostName
             };
 
-            //do
-            //{
-            //On error, try to reconnect to server. Wait 5 seconds between reconnect attempts
-            Console.WriteLine("Connecting to host " + HostName);
-            try
+            do
             {
-                using (var connection = factory.CreateConnection())
-                using (var channel = connection.CreateModel())
+                //On error, try to reconnect to server. Wait 5 seconds between reconnect attempts
+                Console.WriteLine("Connecting to host " + HostName);
+                try
                 {
-                    channel.QueueDeclare(queue: "rpc_queue_torcs",
-                                         durable: false,
-                                         exclusive: false,
-                                         autoDelete: false,
-                                         arguments: null);
-                    channel.BasicQos(0, 1, false);
-                    var consumer = new EventingBasicConsumer(channel); //[TODO change to eventing]
-                    channel.BasicConsume(queue: "rpc_queue_torcs",
-                                         noAck: false,
-                                         consumer: consumer);
-                    Console.WriteLine(" [x] Awaiting RPC requests");
-
-                    consumer.Received += (model, ea) =>
+                    using (var connection = factory.CreateConnection())
+                    using (var channel = connection.CreateModel())
                     {
-                        string response = null;
-                        //var ea = (BasicDeliverEventArgs)consumer.Queue.Dequeue();
+                        channel.QueueDeclare(queue: "rpc_queue_sc",
+                                             durable: false,
+                                             exclusive: false,
+                                             autoDelete: false,
+                                             arguments: null);
+                        channel.BasicQos(0, 1, false);
+                        //var consumer = new EventingBasicConsumer(channel); //[TODO change to eventing]
+                        var consumer = new QueueingBasicConsumer(channel);
+                        channel.BasicConsume(queue: "rpc_queue_sc",
+                                             noAck: false,
+                                             consumer: consumer);
 
-                        var body = ea.Body;
-                        var props = ea.BasicProperties;
-                        var replyProps = channel.CreateBasicProperties();
-                        replyProps.CorrelationId = props.CorrelationId;
-
-                        try
+                        while(true)
+                        //consumer.Received += (model, ea) =>
                         {
-                            var message = Encoding.UTF8.GetString(body);
+                            string response = null;
 
-                            Console.WriteLine(" [.] RunGame()");
+                            Console.WriteLine(" [x] Awaiting RPC requests");
+                            var ea = (BasicDeliverEventArgs)consumer.Queue.Dequeue();
 
-                            dynamic JResults = JsonConvert.DeserializeObject(message);
+                            var body = ea.Body;
+                            var props = ea.BasicProperties;
+                            var replyProps = channel.CreateBasicProperties();
+                            replyProps.CorrelationId = props.CorrelationId;
 
-                            /*
-                                CreateMapFromData(result);
-                                ReplaceBWAPIINI(result);
-                                ClearPreviousRun();*/
-                                StarCraftRunGames.RunGame(SCLocation, CLLocation);
-                                //response = GetRunResults();
-                                
+                            Console.WriteLine(" [<-] Received request");
 
-                            foreach (var Param in JResults["parameters"])
+                            try
                             {
-                                if ((bool)Param["enabled"] == true)
+                                var message = Encoding.UTF8.GetString(body);
+
+                                Console.WriteLine(" [.] RunGame()");
+
+                                dynamic JResults = JsonConvert.DeserializeObject(message);
+
+                                StarCraftDataFiles.CreateMapFromData(InstanceNumber, SCLocation, (string)JResults.custom.MapName, (string)JResults.custom.EnemyRace, JResults);
+                                StarCraftDataFiles.ReplaceBWAPIINI(SCLocation, (string)JResults.custom.MapName, (string)JResults.custom.EnemyRace);
+                                StarCraftDataFiles.ClearPreviousRun(SCLocation);
+
+                                for (int i = 0; i < (int)JResults.custom.NumberOfGames; i++)
                                 {
-                                    //Params[(int)Param.custom.index] += (double)Param.value;
-                                    //Find appropriate xml file in Torcs and apply changes 
-                                    //XMLIntegration.ChangeValueInTorcsXML(TORCSInstallDirectory, (string)Param["name"], (double)Param["value"]);
+                                    StarCraftRunGames.RunGame(SCLocation, CLLocation);
                                 }
+                                String Results = StarCraftRunGames.GetRunResults(SCLocation, CLLocation);
+
+                                Dictionary<string, object> collection = new Dictionary<string, object>()
+                                {
+                                };
+
+                                int Wins = 0;
+                                int Total = 0;
+                                float AverageTime = 0;
+
+                                var lines = Results.Split('\n');
+                                foreach (var line in lines)
+                                {
+                                    if (line.Length > 1)
+                                    {
+                                        var result = line.Split(',');
+                                        int win = int.Parse(result[0]);
+                                        float time = float.Parse(result[1]);
+                                        Wins += win;
+                                        Total++;
+                                        AverageTime += time;
+                                    }
+                                }
+
+                                collection.Add("WinRate", (double)Wins / Total);
+
+                                JObject Result = new JObject(
+                                    new JProperty("metrics",
+                                        JObject.FromObject(collection)
+                                    )
+                                );
+
+                                response = Result.ToString(); //Send them here
                             }
-
-                            //Run TORCS [TODO change number of games to custom value]
-                            //var PathToResultsFile = RunHeadless.RunTorcs(TORCSInstallDirectory, TORCSResultsDirectory, 1, 1, (string)JResults["custom"]["RaceConfig"]);
-
-                            Dictionary<string, object> collection = new Dictionary<string, object>()
+                            catch (Exception e)
                             {
-                            };
-
-                            //Collect results
-                            foreach (var Metric in JResults["metrics"])
-                            {
-                                //var Value = XMLIntegration.GetJSONOfResultsFromXMLResults(PathToResultsFile, (string)Metric["name"]);
-                                //collection.Add((string)Metric["name"], Value);
+                                Console.WriteLine(" [.] " + e.Message);
+                                response = "";
                             }
-
-                            JObject Result = new JObject(
-                                new JProperty("metrics",
-                                    JObject.FromObject(collection)
-                                )
-                            );
-
-                            response = Result.ToString(); //Send them here
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(" [.] " + e.Message);
-                            response = "";
-                        }
-                        finally
-                        {
-                            var responseBytes = Encoding.UTF8.GetBytes(response);
-                            channel.BasicPublish(exchange: "",
-                                                 routingKey: props.ReplyTo,
-                                                 basicProperties: replyProps,
-                                                 body: responseBytes);
-                            channel.BasicAck(deliveryTag: ea.DeliveryTag,
-                                             multiple: false);
+                            finally
+                            {
+                                var responseBytes = Encoding.UTF8.GetBytes(response);
+                                channel.BasicPublish(exchange: "",
+                                                     routingKey: props.ReplyTo,
+                                                     basicProperties: replyProps,
+                                                     body: responseBytes);
+                                channel.BasicAck(deliveryTag: ea.DeliveryTag,
+                                                 multiple: false);
+                                Console.WriteLine(" [->] Sent response to server");
+                            }
                         }
 
-                        Console.WriteLine(" [x] Awaiting RPC requests");
-                    };
 
-
-                    Console.WriteLine(" Press [enter] to exit.");
-                    Console.ReadLine();
+                        //Console.WriteLine(" Press [enter] to exit.");
+                        //Console.ReadLine();
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("ERROR: " + e.Message);
-            }
+                catch (Exception e)
+                {
+                    Console.WriteLine("ERROR: " + e.Message);
+                }
+                Thread.Sleep(5000);
+            } while (true);
         }
     }
 }
